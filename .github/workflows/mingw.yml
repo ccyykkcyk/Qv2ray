@@ -48,6 +48,9 @@ jobs:
             -DBUILD_TESTING=OFF \
             -DUSE_SYSTEM_LIBUV=OFF \
             -DUSE_SYSTEM_UVW=OFF \
+            -DUSE_LIBCPP=ON \
+            -DBUILD_UVW_LIBS=ON \
+            -DBUILD_UVW_SHARED_LIB=ON \
             -GNinja
           cmake --build . --parallel
           cmake --install .
