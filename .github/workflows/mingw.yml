@@ -34,6 +34,7 @@ jobs:
             mingw-w64-${{matrix.env}}-qt6-base
             mingw-w64-${{matrix.env}}-qt6-svg
             mingw-w64-${{matrix.env}}-qt6-translations
+            mingw-w64-${{matrix.env}}-libc++
             mingw-w64-${{matrix.env}}-cmake
             mingw-w64-${{matrix.env}}-grpc
           update: true
