@@ -1,0 +1,58 @@
+name: MSYS2 Build for Desktop
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: msys2 {0}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { msystem: MINGW64, runner: windows-2022, env: x86_64},
+          { msystem: UCRT64, runner: windows-2022, env: ucrt-x86_64}
+        ]
+    name: ${{ matrix.msystem }}
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          release: true
+          msystem: ${{matrix.msystem}}
+          # path-type: inherit
+          install: >-
+            mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-qt6
+            mingw-w64-${{matrix.env}}-cmake
+            mingw-w64-${{matrix.env}}-grpc
+          update: true
+
+      - name: Build
+        run: |
+          mkdir build; cd build
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=Qv2ray \
+            -DBUILD_TESTING=OFF \
+            -DUSE_SYSTEM_LIBUV=ON \
+            -DUSE_SYSTEM_UVW=OFF \
+            -GNinja
+          cmake --build . --parallel
+          cmake --install .
+          cd Qv2ray
+          windeployqt-qt6 qv2ray.exe
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Qv2ray-${{ github.sha }}-${{ matrix.env }}
+          path: build/Qv2ray
